@@ -30,6 +30,20 @@ ipcMain.on('ipc-example', async (event, arg) => {
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
 });
+const appRoot = !app.isPackaged ? path.resolve(__dirname, '..', '..') : path.resolve(app.getAppPath(), '..', '..');
+ipcMain.on('read', (event, args) => {
+  let fs = require('fs');
+  if (!fs.existsSync(path.resolve(appRoot, 'data.json'))) {
+    fs.writeFileSync(path.resolve(appRoot, 'data.json'), JSON.stringify([]));
+  }
+  let data =  fs.readFileSync(path.resolve(appRoot, 'data.json'), 'utf-8');
+  event.reply('read', data);
+});
+ipcMain.on('write', (event, args)=>{
+  let fs = require('fs');
+  fs.writeFileSync(path.resolve(appRoot, 'data.json'), args[0]);
+})
+
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
