@@ -53,6 +53,7 @@ function Hello() {
     }}>Details</Button>
     <br />
     {
+
       showDetails &&
       <List dataSource={data} style={{ height: '400px', overflow: 'auto' }} renderItem={(item, index) =>
         <List.Item>
