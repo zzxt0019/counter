@@ -215,7 +215,7 @@
     "publish": {
       "provider": "github",
       "owner": "zzxt0019",
-      "repo": "zzxt0019"
+      "repo": "counter"
     }
   },
   "collective": {
