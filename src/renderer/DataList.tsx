@@ -14,15 +14,15 @@ export function DataList(props: { data: DataItem[], onChange?: any, type: 'show'
           <Col span={6}>{item.stopTime} </Col>
           <Col span={6}>
             <Input.TextArea autoSize key={item.stopTime} defaultValue={item.message} disabled={type === 'show'}
-                   onChange={(e) => {
-                     data[index].message = e.target.value;
-                     onChange(data);
-                   }}
-                   onBlur={async (e) => {
-                     data[index].message = e.target.value;
-                     await write(data);
-                     read().then(onChange);
-                   }} />
+                            onChange={(e) => {
+                              data[index].message = e.target.value;
+                              onChange(data);
+                            }}
+                            onBlur={async (e) => {
+                              data[index].message = e.target.value;
+                              await write(data);
+                              read().then(onChange);
+                            }} />
           </Col>
           <Col span={6}>
             <Button disabled={type === 'show'} onClick={async () => {
