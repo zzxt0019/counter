@@ -1,80 +1,69 @@
 import { MemoryRouter as Router, Route, Routes } from 'react-router-dom';
 import React from 'react';
-import { Button, Input, List } from 'antd';
+import { Button, Col, Input, Modal, Row } from 'antd';
 import { date2string } from './datetime-util';
+import { DataItem, read, write } from './renderer';
+import { DataList } from './DataList';
+import { ShowNumber } from './ShowNumber';
 
-async function read(): Promise<DataItem[]> {
-  window.electron.ipcRenderer.sendMessage('read', []);
-  return new Promise<any>((res, rej) => {
-    window.electron.ipcRenderer.once('read', (args) => {
-      if (args) {
-        res(JSON.parse(String(args)));
-      } else {
-        res([]);
-      }
-    });
-  });
-}
-
-async function write(data: DataItem[]) {
-  window.electron.ipcRenderer.sendMessage('write', [JSON.stringify(data)]);
-}
-
-interface DataItem {
-  time: string;
-  message: string;
-}
 
 function Hello() {
   const [data, setData] = React.useState<DataItem[]>([]);
   const [inputMessage, setInputMessage] = React.useState('');
   const [showDetails, setShowDetails] = React.useState(false);
+  const [clearModal, setClearModal] = React.useState(false);
+  const [startTime, setStartTime] = React.useState<Date>();
   React.useEffect(() => {
     read().then(setData);
   }, []);
   return (<>
-    {data.length}
-    <br />
-    <Input value={inputMessage} onChange={(e) => {
-      setInputMessage(e.target.value);
-    }}></Input>
-    <Button onClick={async () => {
-      let data = await read();
-      data.unshift({
-        time: date2string(new Date()),
-        message: inputMessage
-      });
-      await write(data);
-      setInputMessage('');
+    <ShowNumber number={data.length} />
+    <Row>
+      <Col span={14}>
+        <Input value={inputMessage} onChange={(e) => {
+          setInputMessage(e.target.value);
+        }}></Input>
+      </Col>
+      <Col span={2}>
+        <Button style={{ width: '100%' }} onClick={() => {
+          setStartTime(startTime => startTime ? undefined : new Date());
+        }}>{startTime === undefined ? 'Start' : 'Cancel'}</Button>
+      </Col>
+      <Col span={2}>
+        <Button style={{ width: '100%' }} onClick={async () => {
+          let data = await read();
+          let dataItem: DataItem = {
+            stopTime: date2string(new Date()),
+            message: inputMessage
+          };
+          if (startTime) {
+            dataItem.startTime = date2string(startTime);
+          }
+          data.unshift(dataItem);
+          await write(data);
+          setStartTime(undefined);
+          setInputMessage('');
+          read().then(setData);
+        }}>{startTime ? 'Stop' : '+1'}</Button>
+      </Col>
+      <Col span={2}>
+        <Button style={{ width: '100%' }} onClick={() => setShowDetails(showDetails => !showDetails)}>Details</Button>
+      </Col>
+      <Col span={2}>
+        <Button style={{ width: '100%' }} onClick={() => {
+          setClearModal(true);
+        }}>Clear All</Button>
+      </Col>
+    </Row>
+    <Modal open={clearModal} okText={'Clear'} onOk={async () => {
+      await write([]);
+      setClearModal(false);
       read().then(setData);
-    }}>+1</Button>
-    <Button onClick={() => {
-      setShowDetails(showDetails => !showDetails);
-    }}>Details</Button>
+    }} onCancel={() => setClearModal(false)}>
+      <DataList data={data} type={'show'} />
+    </Modal>
     <br />
-    {
-      showDetails &&
-      <List dataSource={data} style={{ height: '400px', overflow: 'auto' }} renderItem={(item, index) =>
-        <List.Item>
-          <span>{item.time}</span>
-          <Input key={item.time} defaultValue={item.message}
-                 onChange={(e) => {
-                   data[index].message = e.target.value;
-                   setData(data);
-                 }}
-                 onBlur={async (e) => {
-                   data[index].message = e.target.value;
-                   await write(data);
-                   read().then(setData);
-                 }}></Input>
-          <Button onClick={async () => {
-            data.splice(index, 1);
-            await write(data);
-            read().then(setData);
-          }}>delete</Button>
-        </List.Item>}></List>
-
-    }
+    {showDetails && <DataList data={data} onChange={setData} type={'edit'} />}
   </>);
 }
 
