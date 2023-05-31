@@ -13,7 +13,7 @@ export function DataList(props: { data: DataItem[], onChange?: any, type: 'show'
           </Col>}
           <Col span={6}>{item.stopTime} </Col>
           <Col span={6}>
-            <Input key={item.stopTime} defaultValue={item.message} disabled={type === 'show'}
+            <Input.TextArea autoSize key={item.stopTime} defaultValue={item.message} disabled={type === 'show'}
                    onChange={(e) => {
                      data[index].message = e.target.value;
                      onChange(data);

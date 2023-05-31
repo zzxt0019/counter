@@ -20,9 +20,9 @@ function Hello() {
     <ShowNumber number={data.length} />
     <Row>
       <Col span={14}>
-        <Input value={inputMessage} onChange={(e) => {
+        <Input.TextArea autoSize value={inputMessage} onChange={(e) => {
           setInputMessage(e.target.value);
-        }}></Input>
+        }}></Input.TextArea>
       </Col>
       <Col span={2}>
         <Button style={{ width: '100%' }} onClick={() => {
