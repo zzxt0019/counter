@@ -30,7 +30,7 @@ export function ShowNumber(props: { number: number }) {
                 return undefined;
               }
             })()}>
-              Average: {average}
+              Average: {average.toFixed(2)}
             </Typography.Title>;
           }
         })()}

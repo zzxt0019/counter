@@ -27,7 +27,7 @@ function Hello() {
       <Col span={2}>
         <Button style={{ width: '100%' }} onClick={() => {
           setStartTime(startTime => startTime ? undefined : new Date());
-        }}>{startTime === undefined ? '0Start' : 'Cancel'}</Button>
+        }}>{startTime === undefined ? 'Start' : 'Cancel'}</Button>
       </Col>
       <Col span={2}>
         <Button style={{ width: '100%' }} onClick={async () => {
