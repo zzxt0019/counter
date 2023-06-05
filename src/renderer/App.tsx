@@ -17,7 +17,7 @@ function Hello() {
     read().then(setData);
   }, []);
   return (<>
-    <ShowNumber number={data.length} />
+    <ShowNumber number={dataCheck(data).filter(datum => datum.thisWeek).length} />
     <Row>
       <Col span={14}>
         <Input.TextArea autoSize value={inputMessage} onChange={(e) => {
@@ -60,11 +60,29 @@ function Hello() {
       setClearModal(false);
       read().then(setData);
     }} onCancel={() => setClearModal(false)}>
-      <DataList data={data} type={'show'} />
+      <DataList data={dataCheck(data)} type={'show'} />
     </Modal>
     <br />
-    {showDetails && <DataList data={data} onChange={setData} type={'edit'} />}
+    {showDetails && <DataList data={dataCheck(data)} onChange={setData} type={'edit'} />}
   </>);
+}
+
+function dataCheck(data: DataItem[]) {
+  let day = new Date().getDay();
+  let date = day === 0 ? new Date(new Date().getTime() - 24 * 60 * 60 * 1000 * 6) : new Date(new Date().getTime() - 24 * 60 * 60 * 1000 * (day - 1));
+  date.setHours(4);
+  date.setMinutes(0);
+  date.setSeconds(0);
+  date.setMilliseconds(0);
+  return data.map(datum => {
+    return {
+      startTime: datum.startTime,
+      stopTime: datum.stopTime,
+      message: datum.message,
+      thisWeek: new Date(datum.stopTime).getTime() > date.getTime() &&
+        new Date(datum.stopTime).getTime() - date.getTime() < 7 * 24 * 60 * 60 * 1000
+    };
+  });
 }
 
 export default function App() {
